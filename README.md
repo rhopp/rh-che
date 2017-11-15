@@ -1,3 +1,4 @@
+# Dummy commit, DO NOT MERGE. Just for PR-check-job testing purposes.
 # Eclipse Che on OpenShift 
 
 ## Table Of Content
