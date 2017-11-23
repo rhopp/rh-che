@@ -1,4 +1,4 @@
-# Dummy commit, DO NOT MERGE. Just for PR-check-job testing purposes.
+# Dummy commit, DO NOT MERGE. Just for PR-check-job testing purposes. asdf
 # Eclipse Che on OpenShift 
 
 ## Table Of Content
