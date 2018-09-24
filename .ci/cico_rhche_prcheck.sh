@@ -27,7 +27,7 @@ export PR_CHECK_BUILD=${PR_CHECK_BUILD:-"true"}
 function BuildTagAndPushDocker() {
   echo "Docker status:"
   docker images
-  .ci/cico_build.sh
+  # .ci/cico_build.sh
   echo "After build:"
   docker images
 }
