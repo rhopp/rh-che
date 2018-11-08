@@ -23,7 +23,10 @@ echo "CUSTOM_CHE_SERVER_FULL_URL=${CUSTOM_CHE_SERVER_FULL_URL}" >> ./jenkins-env
 
 echo "Downloading che-functional-tests repo"
 
-git -c http.sslVerify=false clone https://github.com/redhat-developer/che-functional-tests.git
+git -c http.sslVerify=false clone https://github.com/rhopp/che-functional-tests.git
+cd che-functional-tests 
+git checkout debugPRcheck
+cd ..
 cp ./jenkins-env ./che-functional-tests/jenkins-env
 mv ./artifacts.key ./che-functional-tests/artifacts.key
 cd ./che-functional-tests
