@@ -7,8 +7,9 @@
 # http://www.eclipse.org/legal/epl-v10.html
 
 function installOC() {
-  OC_VERSION=3.11.157
-  curl -s "https://mirror.openshift.com/pub/openshift-v3/clients/${OC_VERSION}/linux/oc.tar.gz" | tar xvz -C /usr/local/bin
+  OC_DIR_NAME=openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit
+  curl -s "https://github.com/openshift/origin/releases/download/v3.11.0/${OC_DIR_NAME}.tar.gz" | tar -xvf -C .
+  cp ${OC_DIR_NAME}/oc /usr/local/bin
 }
 
 function installJQ() {
