@@ -7,7 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 
 function installOC() {
-  OC_VERSION=3.10.90
+  OC_VERSION=3.11.157
   curl -s "https://mirror.openshift.com/pub/openshift-v3/clients/${OC_VERSION}/linux/oc.tar.gz" | tar xvz -C /usr/local/bin
 }
 
