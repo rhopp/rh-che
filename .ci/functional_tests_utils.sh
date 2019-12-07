@@ -8,7 +8,8 @@
 
 function installOC() {
   OC_DIR_NAME=openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit
-  curl -vL  "https://github.com/openshift/origin/releases/download/v3.11.0/${OC_DIR_NAME}.tar.gz" --output ${OC_DIR_NAME}.tar.gz | tar -xvf -C .
+  curl -vL  "https://github.com/openshift/origin/releases/download/v3.11.0/${OC_DIR_NAME}.tar.gz" --output ${OC_DIR_NAME}.tar.gz
+  tar -xvf ${OC_DIR_NAME}.tar.gz
   cp ${OC_DIR_NAME}/oc /usr/local/bin
 }
 
