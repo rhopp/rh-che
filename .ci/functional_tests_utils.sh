@@ -41,6 +41,7 @@ function installStartDocker() {
   yum install --assumeyes -d1 yum-utils device-mapper-persistent-data lvm2
   yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   yum install --assumeyes -d1 docker-ce
+  echo "{ \"insecure-registries\": [\"172.30.0.0/16\"] }" > /etc/docker/daemon.json
   systemctl start docker
   docker version
 }
