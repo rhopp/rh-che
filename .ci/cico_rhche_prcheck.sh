@@ -37,7 +37,8 @@ echo "Installing all dependencies lasted $instal_dep_duration seconds."
 
 ### DO NOT MERGE!!!
 
-nmcli
+nmcli > nmclioutput
+cat nmclioutput
 
 oc cluster up
 
