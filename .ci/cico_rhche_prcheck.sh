@@ -59,7 +59,13 @@ oc login -u developer -p pass
 
 bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
 
-chectl server:start -a operator -p openshift
+if chectl server:start -a operator -p openshift
+then
+        echo "Started succesfully"
+else
+        oc get events
+        oc get all
+        exit 1337
 
 CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
 
