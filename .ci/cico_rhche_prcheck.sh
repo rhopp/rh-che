@@ -36,7 +36,7 @@ instal_dep_duration=$(($stop - $start))
 echo "Installing all dependencies lasted $instal_dep_duration seconds."
 
 ### DO NOT MERGE!!!
-
+set -x
 nmcli > nmclioutput
 cat nmclioutput
 
@@ -44,10 +44,10 @@ cat nmclioutput
 LOCAL_IP_ADDRESS=$(ip a show | grep -e "scope.*eth0" | grep -v ':' | cut -d/ -f1 | awk 'NR==1{print $2}')
 echo $LOCAL_IP_ADDRESS
 
-oc cluster up --public-hostname="${LOCAL_IP_ADDRESS}" --routing-suffix="${LOCAL_IP_ADDRESS}.nip.io"
+oc cluster up --public-hostname="${LOCAL_IP_ADDRESS}" --routing-suffix="${LOCAL_IP_ADDRESS}.nip.io" --loglevel=6
 
 
-
+set +x
 ### DO NOT MERGE!!!
 
 # export PROJECT_NAMESPACE=prcheck-${RH_PULL_REQUEST_ID}
