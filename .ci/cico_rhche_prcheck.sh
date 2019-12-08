@@ -53,6 +53,17 @@ echo $LOCAL_IP_ADDRESS
 
 oc cluster up --public-hostname="${LOCAL_IP_ADDRESS}" --routing-suffix="${LOCAL_IP_ADDRESS}.nip.io" --loglevel=6
 
+oc login -u system:admin
+oc adm policy add-cluster-role-to-user cluster-admin developer
+oc login -u developer -p pass
+
+bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
+
+chectl server:start -a operator -p openshift
+
+CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
+
+docker run --shm-size=256m -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" eclipse/che-e2e:nightly
 
 set +x
 ### DO NOT MERGE!!!
