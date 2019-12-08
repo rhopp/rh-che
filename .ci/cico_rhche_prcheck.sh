@@ -40,7 +40,11 @@ echo "Installing all dependencies lasted $instal_dep_duration seconds."
 nmcli > nmclioutput
 cat nmclioutput
 
-oc cluster up
+
+LOCAL_IP_ADDRESS=$(ip a show | grep -e "scope.*eth0" | grep -v ':' | cut -d/ -f1 | awk 'NR==1{print $2}')
+echo $LOCAL_IP_ADDRESS
+
+oc cluster up --public-hostname="${LOCAL_IP_ADDRESS}" --routing-suffix="${LOCAL_IP_ADDRESS}.nip.io"
 
 
 
