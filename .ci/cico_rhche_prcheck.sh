@@ -59,12 +59,13 @@ oc login -u developer -p pass
 
 bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
 
-if chectl server:start -a operator -p openshift --k8spodreadytimeout=180000
+if chectl server:start -a operator -p openshift --k8spodreadytimeout=360000
 then
         echo "Started succesfully"
 else
         oc get events
         oc get all
+        oc logs $(oc get pods --selector=component=che -o jsonpath="{.items[].metadata.name}")
         exit 1337
 fi
 
