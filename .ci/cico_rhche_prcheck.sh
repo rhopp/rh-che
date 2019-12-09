@@ -66,6 +66,7 @@ else
         oc get events
         oc get all
         exit 1337
+fi
 
 CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
 
