@@ -59,13 +59,15 @@ oc login -u developer -p pass
 
 bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
 
-if chectl server:start -a operator -p openshift --k8spodreadytimeout=360000
+if chectl server:start -a operator -p openshift --k8spodreadytimeout=360000 --listr-renderer=verbose
 then
         echo "Started succesfully"
 else
         oc get events
         oc get all
         oc logs $(oc get pods --selector=component=che -o jsonpath="{.items[].metadata.name}")
+        ping keycloak-che.$LOCAL_IP_ADDRESS.nip.io
+        curl -vL http://keycloak-che.172.19.2.164.nip.io/auth/realms/che/.well-known/openid-configuration
         exit 1337
 fi
 
