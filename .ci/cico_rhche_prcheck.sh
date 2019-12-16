@@ -48,6 +48,12 @@ firewall-cmd --permanent --zone dockerc --add-port 8053/udp
 firewall-cmd --reload
 
 
+systemctl stop firewalld
+systemctl disable firewalld
+
+systemctl status firewalld
+
+
 LOCAL_IP_ADDRESS=$(ip a show | grep -e "scope.*eth0" | grep -v ':' | cut -d/ -f1 | awk 'NR==1{print $2}')
 echo $LOCAL_IP_ADDRESS
 
