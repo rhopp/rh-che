@@ -59,6 +59,11 @@ oc login -u developer -p pass
 
 bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
 
+
+echo "====Replace CRD===="
+curl -o org_v1_che_crd.yaml https://raw.githubusercontent.com/eclipse/che-operator/63402ddb5b6ed31c18b397cb477906b4b5cf7c22/deploy/crds/org_v1_che_crd.yaml
+cp org_v1_che_crd.yaml /usr/local/lib/chectl/templates/che-operator/crds/
+
 if chectl server:start -a operator -p openshift --k8spodreadytimeout=360000 --listr-renderer=verbose
 then
         echo "Started succesfully"
