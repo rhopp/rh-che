@@ -73,8 +73,8 @@ then
 else
         oc get events
         oc get all
-        oc logs $(oc get pods --selector=component=che -o jsonpath="{.items[].metadata.name}")
-        oc logs $(oc get pods --selector=component=keycloak -o jsonpath="{.items[].metadata.name}")
+        oc logs $(oc get pods --selector=component=che -o jsonpath="{.items[].metadata.name}") || true
+        oc logs $(oc get pods --selector=component=keycloak -o jsonpath="{.items[].metadata.name}") || true
         curl -vL http://keycloak-che.172.19.2.164.nip.io/auth/realms/che/.well-known/openid-configuration
         exit 1337
 fi
