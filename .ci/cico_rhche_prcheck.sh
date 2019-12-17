@@ -51,10 +51,12 @@ firewall-cmd --reload
 # systemctl stop firewalld
 
 
-LOCAL_IP_ADDRESS=$(ip a show | grep -e "scope.*eth0" | grep -v ':' | cut -d/ -f1 | awk 'NR==1{print $2}')
-echo $LOCAL_IP_ADDRESS
+# LOCAL_IP_ADDRESS=$(ip a show | grep -e "scope.*eth0" | grep -v ':' | cut -d/ -f1 | awk 'NR==1{print $2}')
+# echo $LOCAL_IP_ADDRESS
 
-oc cluster up --public-hostname="${LOCAL_IP_ADDRESS}" --routing-suffix="${LOCAL_IP_ADDRESS}.nip.io" --loglevel=6
+# oc cluster up --public-hostname="${LOCAL_IP_ADDRESS}" --routing-suffix="${LOCAL_IP_ADDRESS}.nip.io" --loglevel=6
+
+oc cluster up --loglevel=6
 
 oc login -u system:admin
 oc adm policy add-cluster-role-to-user cluster-admin developer
