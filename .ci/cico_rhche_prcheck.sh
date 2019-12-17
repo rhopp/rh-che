@@ -48,7 +48,7 @@ firewall-cmd --permanent --zone dockerc --add-port 8053/udp
 firewall-cmd --reload
 
 
-systemctl stop firewalld
+# systemctl stop firewalld
 
 
 LOCAL_IP_ADDRESS=$(ip a show | grep -e "scope.*eth0" | grep -v ':' | cut -d/ -f1 | awk 'NR==1{print $2}')
@@ -71,8 +71,14 @@ if chectl server:start -a operator -p openshift --k8spodreadytimeout=360000 --li
 then
         echo "Started succesfully"
 else
+        echo "==== oc get events ===="
         oc get events
+        echo "==== oc get all ===="
         oc get all
+        echo "==== docker ps ===="
+        docker ps
+        echo "==== docker ps -q | xargs -L 1 docker logs ===="
+        docker ps -q | xargs -L 1 docker logs | true
         oc logs $(oc get pods --selector=component=che -o jsonpath="{.items[].metadata.name}") || true
         oc logs $(oc get pods --selector=component=keycloak -o jsonpath="{.items[].metadata.name}") || true
         curl -vL http://keycloak-che.172.19.2.164.nip.io/auth/realms/che/.well-known/openid-configuration
