@@ -48,6 +48,43 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
 
 ./minikube start --force
 
+curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+kubectl version
+
+kubectl get namespaces
+
+
+bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
+
+
+echo "====Replace CRD===="
+curl -o org_v1_che_crd.yaml https://raw.githubusercontent.com/eclipse/che-operator/63402ddb5b6ed31c18b397cb477906b4b5cf7c22/deploy/crds/org_v1_che_crd.yaml
+cp org_v1_che_crd.yaml /usr/local/lib/chectl/templates/che-operator/crds/
+
+if chectl server:start -a operator -p k8s --k8spodreadytimeout=360000 --listr-renderer=verbose -n che
+then
+        echo "Started succesfully"
+else
+        echo "==== kubectl get events ===="
+        kubectl get events -n 
+        echo "==== kubectl get all ===="
+        kubectl get all -n che
+        # echo "==== docker ps ===="
+        # docker ps
+        # echo "==== docker ps -q | xargs -L 1 docker logs ===="
+        # docker ps -q | xargs -L 1 docker logs | true
+        kubectl logs $(kubectl get pods -n che --selector=component=che -o jsonpath="{.items[].metadata.name}") -n che || true
+        kubectl logs $(kubectl get pods -n che --selector=component=keycloak -o jsonpath="{.items[].metadata.name}") -n che || true
+        curl -vL http://keycloak-che.${LOCAL_IP_ADDRESS}.nip.io/auth/realms/che/.well-known/openid-configuration
+        exit 1337
+fi
+
+CHE_ROUTE=$(kubectl get route che --template='{{ .spec.host }}')
+
+docker run --shm-size=256m -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" eclipse/che-e2e:nightly
+
+
 
 # set -x
 # nmcli > nmclioutput
