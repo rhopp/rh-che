@@ -39,23 +39,41 @@ echo "Installing all dependencies lasted $instal_dep_duration seconds."
 
 
 yum install -y qemu-kvm libvirt libvirt-python libguestfs-tools virt-install
+
+curl -L https://github.com/dhiltgen/docker-machine-kvm/releases/download/v0.10.0/docker-machine-driver-kvm-centos7 -o /usr/local/bin/docker-machine-driver-kvm
+chmod +x /usr/local/bin/docker-machine-driver-kvm
+
 systemctl enable libvirtd
 systemctl start libvirtd
 
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube
+virsh net-list --all
 
-./minikube version
+curl -Lo minishift.tgz https://github.com/minishift/minishift/releases/download/v1.34.2/minishift-1.34.2-linux-amd64.tgz
+tar -xvf minishift.tgz --strip-components=1
+chmod +x ./minishift
+mv ./minishift /usr/local/bin/minishift
 
-./minikube start --force
+minishift version
+minishift config set memory 14GB
+minishift config set cpus 4
 
-curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+minishift start
 
-chmod +x ./kubectl
-mv ./kubectl /usr/local/bin/kubectl
 
-kubectl version
+# curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube
 
-kubectl get namespaces
+# ./minikube version
+
+# ./minikube start --force
+
+# curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+# chmod +x ./kubectl
+# mv ./kubectl /usr/local/bin/kubectl
+
+# kubectl version
+
+# kubectl get namespaces
 
 
 bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
@@ -65,25 +83,25 @@ echo "====Replace CRD===="
 curl -o org_v1_che_crd.yaml https://raw.githubusercontent.com/eclipse/che-operator/63402ddb5b6ed31c18b397cb477906b4b5cf7c22/deploy/crds/org_v1_che_crd.yaml
 cp org_v1_che_crd.yaml /usr/local/lib/chectl/templates/che-operator/crds/
 
-if chectl server:start -a operator -p k8s --k8spodreadytimeout=360000 --listr-renderer=verbose -n che
+if chectl server:start -a operator -p openshift --k8spodreadytimeout=360000 --listr-renderer=verbose
 then
         echo "Started succesfully"
 else
-        echo "==== kubectl get events ===="
-        kubectl get events -n 
-        echo "==== kubectl get all ===="
-        kubectl get all -n che
+        echo "==== oc get events ===="
+        oc get events
+        echo "==== oc get all ===="
+        oc get all 
         # echo "==== docker ps ===="
         # docker ps
         # echo "==== docker ps -q | xargs -L 1 docker logs ===="
         # docker ps -q | xargs -L 1 docker logs | true
-        kubectl logs $(kubectl get pods -n che --selector=component=che -o jsonpath="{.items[].metadata.name}") -n che || true
-        kubectl logs $(kubectl get pods -n che --selector=component=keycloak -o jsonpath="{.items[].metadata.name}") -n che || true
+        oc logs $(oc get pods --selector=component=che -o jsonpath="{.items[].metadata.name}") || true
+        oc logs $(oc get pods --selector=component=keycloak -o jsonpath="{.items[].metadata.name}") || true
         curl -vL http://keycloak-che.${LOCAL_IP_ADDRESS}.nip.io/auth/realms/che/.well-known/openid-configuration
         exit 1337
 fi
 
-CHE_ROUTE=$(kubectl get route che --template='{{ .spec.host }}')
+CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
 
 docker run --shm-size=256m -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" eclipse/che-e2e:nightly
 
