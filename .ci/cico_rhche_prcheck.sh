@@ -38,7 +38,7 @@ echo "Installing all dependencies lasted $instal_dep_duration seconds."
 ### DO NOT MERGE!!!
 
 
-yum install qemu-kvm libvirt libvirt-python libguestfs-tools virt-install
+yum install -y qemu-kvm libvirt libvirt-python libguestfs-tools virt-install
 systemctl enable libvirtd
 systemctl start libvirtd
 
