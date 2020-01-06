@@ -46,7 +46,7 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
 
 ./minikube version
 
-./minikube start
+./minikube start --force
 
 
 # set -x
