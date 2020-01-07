@@ -126,7 +126,7 @@ CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
 
 mkdir report
 REPORT_FOLDER=$(pwd)/report
-set +x
+set +e
 docker run --shm-size=256m -v $REPORT_FOLDER:/root/e2e/report:Z -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" -e TS_SELENIUM_MULTIUSER="true" -e TS_SELENIUM_USERNAME="admin" -e TS_SELENIUM_PASSWORD="admin" eclipse/che-e2e:nightly
 set -e
 archiveArtifacts1
