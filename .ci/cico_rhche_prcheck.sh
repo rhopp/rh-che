@@ -124,6 +124,8 @@ fi
 
 CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
 
+curl -vL $CHE_ROUTE
+
 mkdir report
 REPORT_FOLDER=$(pwd)/report
 set +e
