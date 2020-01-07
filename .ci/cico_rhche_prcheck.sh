@@ -126,11 +126,53 @@ CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
 
 curl -vL $CHE_ROUTE
 
+### Create user and obtain token
+KEYCLOAK_URL=$(oc get route/keycloak -o jsonpath='{.spec.host}')
+KEYCLOAK_BASE_URL="http://${KEYCLOAK_URL}/auth"
+
+ADMIN_USERNAME=admin
+ADMIN_PASS=admin
+TEST_USERNAME=testUser1
+
+echo "Getting admin token"
+ADMIN_ACCESS_TOKEN=$(curl -X POST $KEYCLOAK_BASE_URL/realms/master/protocol/openid-connect/token -H "Content-Type: application/x-www-form-urlencoded" -d "username=admin" -d "password=admin" -d "grant_type=password" -d "client_id=admin-cli" |jq -r .access_token)
+
+echo $ADMIN_ACCESS_TOKEN
+
+echo "Creating user"
+
+USER_JSON="{\"username\": \"${TEST_USERNAME}\",\"enabled\": true,\"emailVerified\": true,\"email\":\"test1@user.aa\"}"
+
+echo $USER_JSON
+
+curl -X POST $KEYCLOAK_BASE_URL/admin/realms/che/users -H "Authorization: Bearer ${ADMIN_ACCESS_TOKEN}" -H "Content-Type: application/json" -d "${USER_JSON}" -v
+
+USER_ID=$(curl -X GET $KEYCLOAK_BASE_URL/admin/realms/che/users?username=${TEST_USERNAME} -H "Authorization: Bearer ${ADMIN_ACCESS_TOKEN}" | jq -r .[0].id)
+echo "User id: $USER_ID"
+
+echo "Updating password"
+
+CREDENTIALS_JSON={\"type\":\"password\",\"value\":\"${TEST_USERNAME}\",\"temporary\":false}
+echo $CREDENTIALS_JSON
+
+curl -X PUT $KEYCLOAK_BASE_URL/admin/realms/che/users/${USER_ID}/reset-password -H "Authorization: Bearer ${ADMIN_ACCESS_TOKEN}" -H "Content-Type: application/json" -d "${CREDENTIALS_JSON}" -v
+
+export USER_ACCESS_TOKEN=$(curl -X POST $KEYCLOAK_BASE_URL/realms/che/protocol/openid-connect/token -H "Content-Type: application/x-www-form-urlencoded" -d "username=${TEST_USERNAME}" -d "password=${TEST_USERNAME}" -d "grant_type=password" -d "client_id=che-public" |jq -r .access_token)
+
+### Create workspace
+
+chectl workspace:start --access-token "$USER_ACCESS_TOKEN" -f https://raw.githubusercontent.com/eclipse/che/master/tests/e2e/files/happy-path/happy-path-workspace.yaml
+
+
+### Run tests
 mkdir report
 REPORT_FOLDER=$(pwd)/report
+
 set +e
 docker run --shm-size=256m --network host -v $REPORT_FOLDER:/tmp/e2e/report:Z -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" -e TS_SELENIUM_MULTIUSER="true" -e TS_SELENIUM_USERNAME="admin" -e TS_SELENIUM_PASSWORD="admin" eclipse/che-e2e:nightly
 set -e
+
+### Archive artifacts
 archiveArtifacts1
 
 
