@@ -107,8 +107,12 @@ fi
 
 CHE_ROUTE=$(oc get route che --template='{{ .spec.host }}')
 
-docker run --shm-size=256m -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" eclipse/che-e2e:nightly
+mkdir report
+REPORT_FOLDER=$(pwd)/report
 
+docker run --shm-size=256m -v $REPORT_FOLDER:/root/e2e/report:Z -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" -e TS_SELENIUM_MULTIUSER="true" -e TS_SELENIUM_USERNAME="admin" -e TS_SELENIUM_PASSWORD="admin" eclipse/che-e2e:nightly
+
+archiveArtifacts()
 
 
 # set -x
@@ -180,3 +184,21 @@ docker run --shm-size=256m -e TS_SELENIUM_BASE_URL="http://$CHE_ROUTE" eclipse/c
 # end_time=$(date +%s)
 # whole_check_duration=$(($end_time - $total_start_time))
 # echo "****** PR check ended at $(date) and whole run took $whole_check_duration seconds. ******"
+
+
+function archiveArtifacts(){
+  set +e
+  JOB_NAME=rhopp
+  echo "Archiving artifacts from ${DATE} for ${JOB_NAME}/${BUILD_NUMBER}"
+  ls -la ./artifacts.key
+  chmod 600 ./artifacts.key
+  chown $(whoami) ./artifacts.key
+  mkdir -p ./rhche/${JOB_NAME}/${BUILD_NUMBER}
+  cp  -R ./report ./rhche/${JOB_NAME}/${BUILD_NUMBER}/ | true
+#   cp ./logs/*.log ./rhche/${JOB_NAME}/${BUILD_NUMBER}/ | true
+#   cp -R ./logs/artifacts/screenshots/ ./rhche/${JOB_NAME}/${BUILD_NUMBER}/ | true
+#   cp -R ./logs/artifacts/failsafe-reports/ ./rhche/${JOB_NAME}/${BUILD_NUMBER}/ | true
+#   cp ./events_report.txt ./rhche/${JOB_NAME}/${BUILD_NUMBER}/ | true
+  rsync --password-file=./artifacts.key -Hva --partial --relative ./rhche/${JOB_NAME}/${BUILD_NUMBER} devtools@artifacts.ci.centos.org::devtools/
+  set -e
+}
